@@ -117,7 +117,7 @@ class DailyCP:
         for item in collectList:
             detail = self.getDetail(item["wid"])
             form = self.getFormFiled(detail["collector"]["formWid"],detail["collector"]["wid"])
-            form = self.autoFill(form)
+            self.autoFill(form)
             #you can edit this form content by your self.
             #autoFill can fill the form with default value.
             self.submitForm(detail["collector"]["formWid"],detail["collector"]["wid"],detail["collector"]["schoolTaskWid"],form)
