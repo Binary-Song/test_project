@@ -9,12 +9,11 @@ class DailyCP:
         self.t = str(int(round(time.time() * 1000)))
         self.session = requests.session()
         self.host = host
-        self.headers = {
+        self.session.headers.update({
             "Content-Type": "application/json",
-            "Origin": "https://"+self.host,
-            "Host": self.host,
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36"
-        }
+            #"User-Agent": "okhttp/3.12.4"
+        })
         url = "https://"+self.host+"/iap/login?service=https%3A%2F%2F"+self.host+"%2Fportal%2Flogin"
         ret = self.session.get(url)
         '''
@@ -25,7 +24,7 @@ class DailyCP:
         self.encryptSalt = re.findall(re.compile(r'id=\"encryptSalt\" type=\"hidden\" value=\"(.*?)\"'),ret.text)[0]
     def checkNeedCaptcha(self,username):
         url = "https://"+self.host+"/iap/checkNeedCaptcha?username="+username+"&_="+self.t
-        ret = self.session.get(url,headers=self.headers)
+        ret = self.session.get(url)
         ret = json.loads(ret.text)
         return ret["needCaptcha"]
     def generateCaptcha(self):
@@ -41,8 +40,8 @@ class DailyCP:
             "captcha": captcha,
             "rememberMe": "true",
         }
-        self.headers["Content-Type"] = "application/x-www-form-urlencoded; charset=UTF-8"
-        ret = self.session.post(url,headers=self.headers,data=body)
+        self.session.headers["Content-Type"] = "application/x-www-form-urlencoded; charset=UTF-8"
+        ret = self.session.post(url,data=body)
         if ret.text[0] == "{":
             return json.loads(ret.text)
         else:
@@ -52,9 +51,9 @@ class DailyCP:
             "pageSize":10,
             "pageNumber":1
         }
-        self.headers["Content-Type"] = "application/json"
+        self.session.headers["Content-Type"] = "application/json"
         url = "https://"+self.host+"/wec-counselor-collector-apps/stu/collector/queryCollectorProcessingList"
-        ret = self.session.post(url,headers=self.headers,data=json.dumps(body))
+        ret = self.session.post(url,data=json.dumps(body))
         ret = json.loads(ret.text)
         #{"code":"0","message":"SUCCESS","datas":{"totalSize":0,"pageSize":10,"pageNumber":3,"rows":[]}}
         return ret["datas"]["rows"]
@@ -63,20 +62,11 @@ class DailyCP:
         body = {
             "collectorWid":collectorWid
         }
-        self.headers["Content-Type"] = "application/json"
-        ret = self.session.post(url,headers=self.headers,data=json.dumps(body))
+        self.session.headers["Content-Type"] = "application/json"
+        ret = self.session.post(url,data=json.dumps(body))
         ret = json.loads(ret.text)["datas"]
         url = ret["form"]["formContent"]
-        header = {
-            "Host":"wecres.cpdaily.com",
-            "Origin": "https://"+self.host,
-            "TE": "Trailers",
-            "Access-Control-Request-Method": "GET",
-            "Access-Control-Request-Headers": "access-control-allow-origin"
-        }
         return ret
-        #ret = self.session.options(url,headers=header)
-        #print(ret.text)
     def getFormFiled(self,formWid,collectorWid):
         url = "https://"+self.host+"/wec-counselor-collector-apps/stu/collector/getFormFields"
         body = {
@@ -85,25 +75,29 @@ class DailyCP:
             "formWid":formWid,
             "collectorWid":collectorWid
         }
-        self.headers["Content-Type"] = "application/json"
-        ret = self.session.post(url,headers=self.headers,data=json.dumps(body))
+        self.session.headers["Content-Type"] = "application/json"
+        ret = self.session.post(url,data=json.dumps(body))
         ret = json.loads(ret.text)["datas"]["rows"]
         return ret
-    def submitForm(self,formWid,collectWid,schoolTaskWid,rows):
+    def submitForm(self,formWid,collectWid,schoolTaskWid,rows,address):
         url = "https://"+self.host+"/wec-counselor-collector-apps/stu/collector/submitForm"
         body = {
             "formWid":formWid,
             "collectWid":collectWid,
             "schoolTaskWid":schoolTaskWid,
-            "form":rows
+            "form":rows,
+            "address":address
         }
-        self.headers["Content-Type"] = "application/json"
-        ret = self.session.post(url,headers=self.headers,data=json.dumps(body))
+        self.session.headers["Content-Type"] = "application/json"
+        #self.session.headers["extension"] = "1" extension
+        self.session.headers.update({"Cpdaily-Extension":"7Q881vmOiX7nCAFvYP7Vs0i+EVwTCyEruC4euS0HemoXqaLS/g5g7wovFJVeHrikY1uuQ8gSH5RdZQeCzbsBjk+0DKsec7OiSPZxU3wDCpuvnS12Ikra05lQ B7dFJeUJb/IdN0JXRwTR7xqUfqje7sdXl6C1BRrfwXnWuxmOXh+NXAMxd7t1 UoUMYS2qHw5wNUgO37idqwJjd3Nzfez7XDkRehxMQwCCm7VgcAn6Z741lLzN Mt95ElAtkHp4O26TaCZ5Tmi7fcrZsrNSXQbx1E2HsrjGntoo"})
+        ret = self.session.post(url,data=json.dumps(body))
         print(ret.text)
         ret = json.loads(ret.text)
         if ret["message"] != "SUCCESS":
             print("填表失败")
     def autoFill(self,rows):
+        #isRequired
         for item in rows:
             index = 0
             while index < len(item["fieldItems"]):
@@ -111,16 +105,16 @@ class DailyCP:
                     index = index + 1
                 else:
                     item["fieldItems"].pop(index)
-    def autoComplete(self):
+    def autoComplete(self,address):
         collectList = self.getList()
         print(collectList)
         for item in collectList:
             detail = self.getDetail(item["wid"])
             form = self.getFormFiled(detail["collector"]["formWid"],detail["collector"]["wid"])
-            form = self.autoFill(form)
+            self.autoFill(form)
             #you can edit this form content by your self.
             #autoFill can fill the form with default value.
-            self.submitForm(detail["collector"]["formWid"],detail["collector"]["wid"],detail["collector"]["schoolTaskWid"],form)
+            self.submitForm(detail["collector"]["formWid"],detail["collector"]["wid"],detail["collector"]["schoolTaskWid"],form,address)
 
 if __name__ == "__main__":
     app = DailyCP()
@@ -140,7 +134,7 @@ if __name__ == "__main__":
             break
         else:
             print(ret)
-    app.autoComplete()
+    app.autoComplete("C-137平行宇宙，地球，中国")
 
 #Usage:
 #   just edit your id and password.
