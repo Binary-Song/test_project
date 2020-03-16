@@ -119,22 +119,20 @@ class DailyCP:
 if __name__ == "__main__":
     app = DailyCP()
     while True:
-        print("请输入帐号：")
-        account = input()
+        account = input("请输入帐号：")
         cap = ""
         if app.checkNeedCaptcha(account):
             with io.open("Captcha.png","wb") as file:
                 file.write(app.generateCaptcha())
-            print("请输入验证码(Captcha.png)：")
-            cap = input()
-        print("请输入密码：")
-        password = input()
+            cap = input("请输入验证码(Captcha.png)：")
+        password = input("请输入密码：")
         ret = app.login(account,password,cap)
         if ret == "SUCCESS":
             break
         else:
             print(ret)
-    app.autoComplete("C-137平行宇宙，地球，中国")
+    address = input("请输入定位地址：")#"C-137平行宇宙，地球，中国"
+    app.autoComplete(address)
 
 #Usage:
 #   just edit your id and password.
