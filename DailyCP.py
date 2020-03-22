@@ -138,5 +138,5 @@ if __name__ == "__main__":
 #   just edit your id and password.
 #   if you are not auster,you need replace the host
 #   and run this script
-#Author:HuangXu,FenXinYang,ZhouYuYang.
+#Author:HuangXu,FengXinYang,ZhouYuYang.
 #By:AUST HACKER
