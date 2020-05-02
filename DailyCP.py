@@ -4,9 +4,13 @@ import io
 import random
 import time
 import re
+import pyDes
+import base64
+import uuid
 
 class DailyCP:
     def __init__(self, host="aust.campusphere.net"):
+        self.key = "ST83=@XV"#dynamic when app update
         self.t = str(int(round(time.time() * 1000)))
         self.session = requests.session()
         self.host = host
@@ -23,6 +27,16 @@ class DailyCP:
         self.encryptSalt = re.findall(re.compile(
             r'id=\"encryptSalt\" type=\"hidden\" value=\"(.*?)\"'), ret.text)[0]
 
+    def encrypt(self,text):
+        k = pyDes.des(self.key, pyDes.CBC, b"\x01\x02\x03\x04\x05\x06\x07\x08", pad=None, padmode=pyDes.PAD_PKCS5)
+        ret = k.encrypt(text)
+        return base64.b64encode(ret).decode()
+
+    def decrypt(self,text):
+        k = pyDes.des(self.key, pyDes.CBC, b"\x01\x02\x03\x04\x05\x06\x07\x08", pad=None, padmode=pyDes.PAD_PKCS5)
+        ret = k.decrypt(base64.b64decode(text))
+        return ret.decode()
+
     def checkNeedCaptcha(self, username):
         url = "https://"+self.host+"/iap/checkNeedCaptcha?username="+username+"&_="+self.t
         ret = self.session.get(url)
@@ -37,6 +51,7 @@ class DailyCP:
 
     def login(self, username, password, captcha=""):
         url = "https://"+self.host+"/iap/doLogin"
+        self.username = username
         body = {
             "username": username,
             "password": password,
@@ -123,7 +138,8 @@ class DailyCP:
         }
         self.session.headers["Content-Type"] = "application/json"
         # self.session.headers["extension"] = "1" extension
-        self.session.headers.update({"Cpdaily-Extension": "7Q881vmOiX7nCAFvYP7Vs0i+EVwTCyEruC4euS0HemoXqaLS/g5g7wovFJVeHrikY1uuQ8gSH5RdZQeCzbsBjk+0DKsec7OiSPZxU3wDCpuvnS12Ikra05lQ B7dFJeUJb/IdN0JXRwTR7xqUfqje7sdXl6C1BRrfwXnWuxmOXh+NXAMxd7t1 UoUMYS2qHw5wNUgO37idqwJjd3Nzfez7XDkRehxMQwCCm7VgcAn6Z741lLzN Mt95ElAtkHp4O26TaCZ5Tmi7fcrZsrNSXQbx1E2HsrjGntoo"})
+        extension = {"deviceId":str(uuid.uuid4()),"systemName":"未来操作系统","userId":self.username,"appVersion":"8.1.13","model":"红星一号量子计算机","lon":0.0,"systemVersion":"初号机","lat":0.0}
+        self.session.headers.update({"Cpdaily-Extension": self.encrypt(json.dumps(extension))})
         ret = self.session.post(url, data=json.dumps(body))
         print(ret.text)
         ret = json.loads(ret.text)
