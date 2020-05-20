@@ -15,17 +15,20 @@ class DailyCP:
         self.session = requests.session()
         self.host = host
         self.session.headers.update({
-            "Content-Type": "application/json",
-            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36",
+            "X-Requested-With": "XMLHttpRequest",
+            "Pragma": "no-cache",
+            "Accept": "application/json, text/plain, */*",
             # "User-Agent": "okhttp/3.12.4"
         })
-        url = "https://"+self.host+"/iap/login?service=https%3A%2F%2F" + \
-            self.host+"%2Fportal%2Flogin"
-        ret = self.session.get(url)
-        self.client = re.findall(re.compile(
-            r'id=\"lt\" value=\"(.*?)\"'), ret.text)[0]
-        self.encryptSalt = re.findall(re.compile(
-            r'id=\"encryptSalt\" type=\"hidden\" value=\"(.*?)\"'), ret.text)[0]
+        url = "https://{host}/iap/login?service=https://{host}/portal/login".format(host=self.host)
+        ret = self.session.get(url).url
+        self.client = ret[ret.find("=")+1:]
+        self.session.headers.update({"Content-Type": "application/x-www-form-urlencoded"})
+        url = "https://{host}/iap/security/lt".format(host=self.host)
+        ret = json.loads(self.session.post(url,data="lt={client}".format(client=self.client)).text)
+        self.client = ret["result"]["_lt"]
+        self.encryptSalt = ret["result"]["_encryptSalt"]
 
     def encrypt(self,text):
         k = pyDes.des(self.key, pyDes.CBC, b"\x01\x02\x03\x04\x05\x06\x07\x08", pad=None, padmode=pyDes.PAD_PKCS5)
@@ -38,19 +41,23 @@ class DailyCP:
         return ret.decode()
 
     def checkNeedCaptcha(self, username):
-        url = "https://"+self.host+"/iap/checkNeedCaptcha?username="+username+"&_="+self.t
+        url = "https://{host}/iap/checkNeedCaptcha?username={username}&_=".format(host=self.host,username=username)
         ret = self.session.get(url)
         ret = json.loads(ret.text)
         return ret["needCaptcha"]
 
     def generateCaptcha(self):
-        url = "https://"+self.host+"/iap/generateCaptcha?ltId=" + \
-            self.client+"&codeType=2&"+self.t
+        url = "https://{host}/iap/generateCaptcha?ltId={client}&codeType=2&".format(host=self.host,client=self.client)
         ret = self.session.get(url)
         return ret.content
 
+    def getBasicInfo(self):
+        url = "https://{host}/iap/tenant/basicInfo".format(host=self.host)
+        ret = self.session.post(url,data="{}").text
+        return json.loads(ret)
+
     def login(self, username, password, captcha=""):
-        url = "https://"+self.host+"/iap/doLogin"
+        url = "https://{host}/iap/doLogin".format(host=self.host)
         self.username = username
         body = {
             "username": username,
@@ -58,13 +65,15 @@ class DailyCP:
             "lt": self.client,
             "captcha": captcha,
             "rememberMe": "true",
+            "dllt": "",
+            "mobile": ""
         }
-        self.session.headers["Content-Type"] = "application/x-www-form-urlencoded; charset=UTF-8"
-        ret = self.session.post(url, data=body)
-        if ret.text[0] == "{":
-            print(json.loads(ret.text))
-            return False
-        else:return True
+        self.session.headers["Content-Type"] = "application/x-www-form-urlencoded"
+        ret = json.loads(self.session.post(url, data=body).text)
+        if ret["resultCode"] == "REDIRECT":
+            self.session.get(ret["url"])
+            return True
+        else: return False
 
     def getCollectorList(self):
         body = {
@@ -72,8 +81,7 @@ class DailyCP:
             "pageNumber": 1
         }
         self.session.headers["Content-Type"] = "application/json"
-        url = "https://"+self.host + \
-            "/wec-counselor-collector-apps/stu/collector/queryCollectorProcessingList"
+        url = "https://{host}/wec-counselor-collector-apps/stu/collector/queryCollectorProcessingList".format(host=self.host)
         ret = self.session.post(url, data=json.dumps(body))
         ret = json.loads(ret.text)
         return ret["datas"]["rows"]
@@ -84,8 +92,7 @@ class DailyCP:
             "pageNumber": 1
         }
         self.session.headers["Content-Type"] = "application/json"
-        url = "https://"+self.host + \
-            "/wec-counselor-stu-apps/stu/notice/queryProcessingNoticeList"
+        url = "https://{host}/wec-counselor-stu-apps/stu/notice/queryProcessingNoticeList".format(host=self.host)
         ret = self.session.post(url, data=json.dumps(body))
         ret = json.loads(ret.text)
         return ret["datas"]["rows"]
@@ -95,7 +102,7 @@ class DailyCP:
             "wid": wid
         }
         self.session.headers["Content-Type"] = "application/json"
-        url = "https://"+self.host+"/wec-counselor-stu-apps/stu/notice/confirmNotice"
+        url = "https://{host}/wec-counselor-stu-apps/stu/notice/confirmNotice".format(host=self.host)
         ret = self.session.post(url, data=json.dumps(body))
         ret = json.loads(ret.text)
         if ret["message"] == "SUCCESS":return True
@@ -104,7 +111,7 @@ class DailyCP:
             return False
 
     def getCollectorDetail(self, collectorWid):
-        url = "https://"+self.host+"/wec-counselor-collector-apps/stu/collector/detailCollector"
+        url = "https://{host}/wec-counselor-collector-apps/stu/collector/detailCollector".format(host=self.host)
         body = {
             "collectorWid": collectorWid
         }
@@ -115,7 +122,7 @@ class DailyCP:
         return ret
 
     def getCollectorFormFiled(self, formWid, collectorWid):
-        url = "https://"+self.host+"/wec-counselor-collector-apps/stu/collector/getFormFields"
+        url = "https://{host}/wec-counselor-collector-apps/stu/collector/getFormFields".format(host=self.host)
         body = {
             "pageSize": 50,
             "pageNumber": 1,
@@ -128,7 +135,7 @@ class DailyCP:
         return ret
 
     def submitCollectorForm(self, formWid, collectWid, schoolTaskWid, rows, address):
-        url = "https://"+self.host+"/wec-counselor-collector-apps/stu/collector/submitForm"
+        url = "https://{host}/wec-counselor-collector-apps/stu/collector/submitForm".format(host=self.host)
         body = {
             "formWid": formWid,
             "collectWid": collectWid,
@@ -179,13 +186,13 @@ if __name__ == "__main__":
     app = DailyCP()
     while True:
         account = input("请输入帐号：")
-        cap = ""
-        if app.checkNeedCaptcha(account):
-            with io.open("Captcha.png", "wb") as file:
-                file.write(app.generateCaptcha())
-            cap = input("请输入验证码(Captcha.png)：")
+        #cap = ""
+        #if app.checkNeedCaptcha(account):
+        #    with io.open("Captcha.png", "wb") as file:
+        #        file.write(app.generateCaptcha())
+        #    cap = input("请输入验证码(Captcha.png)：")
         password = input("请输入密码：")
-        ret = app.login(account, password, cap)
+        ret = app.login(account, password)
         if ret:break
     address = input("请输入定位地址：")  # "C-137平行宇宙，地球，中国"
     app.autoComplete(address)
@@ -196,3 +203,5 @@ if __name__ == "__main__":
 #   and run this script
 # Author:HuangXu,FengXinYang,ZhouYuYang.
 # By:AUST HACKER
+
+#2020/5/20 重要更新：修复登录过程，移除验证码（不需要），优化代码格式，感谢giteee及时反馈。
