@@ -35,6 +35,7 @@ class DailyCP:
             exit()
         ret = self.request("https://mobile.campushoy.com/v6/config/guest/tenant/info?ids={ids}".format(ids=school[0]["id"]))
         ret = re.findall(r"//(.*?)/",ret["data"][0]["idsUrl"])
+        #ret = ret["data"][0]["idsUrl"]
         if len(ret) == 0:
             print("学校并没有申请入驻今日校园平台")
             exit()
@@ -46,7 +47,7 @@ class DailyCP:
         return base64.b64encode(ret).decode()
 
     def passwordEncrypt(self,text:str,key:str):
-        pad = lambda s: s + (16 - len(s) % 16) * chr(16 - len(s) % 16)
+        pad = lambda s: s + (len(key) - len(s) % len(key)) * chr(len(key) - len(s) % len(key))
         unpad = lambda s: s[:-ord(s[len(s) - 1:])]
         text = pad("TdEEGazAXQMBzEAisrYaxRRax5kmnMJnpbKxcE6jxQfWRwP2J78adKYm8WzSkfXJ"+text).encode("utf-8")
         aes = AES.new(str.encode(key), AES.MODE_CBC,str.encode("ya8C45aRrBEn8sZH"))
@@ -81,7 +82,7 @@ class DailyCP:
         return self.request("https://{host}/iap/tenant/basicInfo","{}")
 
     def login(self, username, password, captcha=""):
-        if self.host.find("authserver") != -1:return self.loginAuthserver(username,password,captcha)
+        if self.host.find("auth") != -1:return self.loginAuthserver(username,password,captcha)
         else: return self.loginIAP(username,password,captcha)
 
     def loginIAP(self, username, password, captcha=""):
