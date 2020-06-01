@@ -8,6 +8,7 @@ import pyDes
 import base64
 import uuid
 import sys
+import os
 from Crypto.Cipher import AES
 
 class DailyCP:
@@ -15,6 +16,7 @@ class DailyCP:
         self.key = "ST83=@XV"#dynamic when app update
         self.session = requests.session()
         self.host = ""
+        self.isIAPLogin = True
         self.session.headers.update({
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36",
             "X-Requested-With": "XMLHttpRequest",
@@ -34,8 +36,13 @@ class DailyCP:
             print(ret)
             exit()
         ret = self.request("https://mobile.campushoy.com/v6/config/guest/tenant/info?ids={ids}".format(ids=school[0]["id"]))
-        ret = re.findall(r"//(.*?)/",ret["data"][0]["idsUrl"])
-        #ret = ret["data"][0]["idsUrl"]
+        ret = ret["data"][0]["ampUrl"]
+        ret = self.session.get(ret).url
+        print("{name}的登录地址{url}".format(name=schoolName,url=ret))
+        self.isIAPLogin = "campusphere" in ret
+        if not self.isIAPLogin:
+            print("注意：包含AuthServer的登陆方式并未测试！且每一个学校的登录方式都不一样。")
+        ret = re.findall(r"//(.*?)/",ret)
         if len(ret) == 0:
             print("学校并没有申请入驻今日校园平台")
             exit()
@@ -82,8 +89,8 @@ class DailyCP:
         return self.request("https://{host}/iap/tenant/basicInfo","{}")
 
     def login(self, username, password, captcha=""):
-        if self.host.find("auth") != -1:return self.loginAuthserver(username,password,captcha)
-        else: return self.loginIAP(username,password,captcha)
+        if self.isIAPLogin:return self.loginIAP(username,password,captcha)
+        else: return self.loginAuthserver(username,password,captcha)
 
     def loginIAP(self, username, password, captcha=""):
         ret = self.session.get("https://{host}/iap/login?service=https://{host}/portal/login".format(host=self.host)).url
@@ -113,13 +120,20 @@ class DailyCP:
 
     def loginAuthserver(self,username,password,captcha=""):
         ret = self.request("https://{host}/authserver/login",parseJson=False)
+        print(ret)
         body = dict(re.findall(r'''<input type="hidden" name="(.*?)" value="(.*?)"''',ret))
         salt = dict(re.findall(r'''<input type="hidden" id="(.*?)" value="(.*?)"''',ret))
+        #这个salt有些学校没有，就很难受，而且有些学校加密方式也不一定一样
         body["username"] = username
-        body["password"] = self.passwordEncrypt(password,salt["pwdDefaultEncryptSalt"])
+        if "pwdDefaultEncryptSalt" in salt.keys():
+            body["password"] = self.passwordEncrypt(password,salt["pwdDefaultEncryptSalt"])
+        else: 
+            body["password"] = password
         ret = self.request("https://{host}/authserver/login",body,False,False)
         #由于手头上没有测试账号，请小伙伴自行测试可用性。
         #有些学校的登录过程包含验证码
+        #2020/6/1 发现这种登录方式，各种学校都不一样，可能是学校接入了自己的SSO。
+        print("能用吗？不能用的话，有能力的自行改写脚本，没能力的付费咨询我QQ，支持功能定制，这么多学校实在忙不过来。")
 
     def getCollectorList(self):
         body = {
@@ -188,8 +202,18 @@ class DailyCP:
         for item in collectList:
             detail = self.getCollectorDetail(item["wid"])
             form = self.getCollectorFormFiled(detail["collector"]["formWid"], detail["collector"]["wid"])
-            self.autoFill(form)
-            self.submitCollectorForm(detail["collector"]["formWid"], detail["collector"]["wid"], detail["collector"]["schoolTaskWid"], form, address)
+
+            formpath = "./formdb/{formwid}.json".format(formwid=detail["collector"]["formWid"])
+            if os.path.exists(formpath):
+                with open(formpath,"rb") as file:
+                    form = json.loads(file.read().decode("utf-8"))
+                    self.autoFill(form)
+                self.submitCollectorForm(detail["collector"]["formWid"], detail["collector"]["wid"], detail["collector"]["schoolTaskWid"], form, address)
+            else:
+                with open(formpath,"wb") as file:
+                    file.write(json.dumps(form,ensure_ascii=False).encode("utf-8"))
+                    print("请手动填写{formpath}，之后重新运行脚本".format(formpath=formpath))
+                    exit()
 
         confirmList = self.getNoticeList()
         print(confirmList)
@@ -209,3 +233,7 @@ if __name__ == "__main__":
 
 #2020/5/20 重要更新：修复登录过程，移除验证码（不需要），优化代码格式，感谢giteee及时反馈。
 #2020/5/28 更改为使用自动获取学校URL的方式，更改为使用参数形式，添加另一种登录形式AuthServer的支持(已完成但未测试)。感谢柠火的反馈。
+#2020/6/1 修复BUG，发现AuthServer的登录方式每个学校都不一样。支持任意表单内容自定义（详情见输出信息和formdb/1129.json）。感谢涅灵的反馈。
+
+#如果有人帮我写使用教程就好了。
+#当然你发现这个表格具有普适性，可以发PULL REQUEST把formdb共享出来。
