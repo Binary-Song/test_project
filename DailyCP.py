@@ -9,6 +9,7 @@ import base64
 import uuid
 import sys
 import os
+import hashlib
 from Crypto.Cipher import AES
 
 class DailyCP:
@@ -44,16 +45,6 @@ class DailyCP:
             exit()
         print("{name}的登录地址{url}".format(name=schoolName,url=self.loginUrl))
         self.host =  re.findall(r"//(.*?)/",self.loginUrl)[0]
-        
-        #ret = self.request(ret["data"][0]["ampUrl"],parseJson=False).url
-        #self.isIAPLogin = "campusphere" in ret
-        #if not self.isIAPLogin:
-        #    print("注意：包含AuthServer的登陆方式并未测试！且每一个学校的登录方式都不一样。")
-        #ret = re.findall(r"//(.*?)/",ret)
-        #if len(ret) == 0:
-            
-        #    exit()
-        #self.host = ret[0]
 
     def encrypt(self,text):
         k = pyDes.des(self.key, pyDes.CBC, b"\x01\x02\x03\x04\x05\x06\x07\x08", pad=None, padmode=pyDes.PAD_PKCS5)
@@ -89,9 +80,10 @@ class DailyCP:
         return ret["needCaptcha"]
 
     def generateCaptcha(self):
-        url = "https://{host}/iap/generateCaptcha?ltId={client}&codeType=2".format(host=self.host,client=self.client)
-        ret = self.session.get(url)
-        return ret.content
+        #url = "https://{host}/iap/generateCaptcha?ltId={client}&codeType=2".format(host=self.host,client=self.client)
+        #ret = self.session.get(url)
+        #return ret.content
+        pass
 
     def getBasicInfo(self):
         return self.request("https://{host}/iap/tenant/basicInfo","{}")
@@ -132,7 +124,6 @@ class DailyCP:
         ret = self.request(self.loginUrl,parseJson=False)
         body = dict(re.findall(r'''<input type="hidden" name="(.*?)" value="(.*?)"''',ret.text))
         salt = dict(re.findall(r'''<input type="hidden" id="(.*?)" value="(.*?)"''',ret.text))
-        #这个salt有些学校没有，就很难受，而且有些学校加密方式也不一定一样
         body["username"] = username
         if "pwdDefaultEncryptSalt" in salt.keys():
             body["password"] = self.passwordEncrypt(password,salt["pwdDefaultEncryptSalt"])
@@ -140,10 +131,6 @@ class DailyCP:
             body["password"] = password
         ret = self.request(ret.url,body,False,False,Referer=self.loginUrl).url
         print(self.session.cookies)
-        #由于手头上没有测试账号，请小伙伴自行测试可用性。
-        #有些学校的登录过程包含验证码
-        #2020/6/1 发现这种登录方式，各种学校都不一样，可能是学校接入了自己的SSO。
-        #2020/6/2 发现有些学校根本不支持https...于是统一换成http，安全性--
         print("能用吗？不能用的话，有能力的自行改写脚本，没能力的付费咨询我QQ，支持功能定制，这么多学校实在忙不过来。")
         return True
 
@@ -204,18 +191,20 @@ class DailyCP:
             while index < len(item["fieldItems"]):
                 if item["fieldItems"][index]["isSelected"] == 1:index = index + 1
                 else:item["fieldItems"].pop(index)
-        #此函数通过表格的默认值自动填写，如果你们学校没有提供默认值的，需要手动编辑此函数。
-        #先print(rows)，观察表格的形式，想选择哪一个选项，pop掉其他无关选项就行了。当然也可以直接将rows硬编码在代码里面。
-        #因为每个人的定位地址都不一样，有些学校的表格也不一定一样，所以这里就不写细节了。
 
-    def autoComplete(self, address):
+    def getFormCharac(self,detail):
+        ret = self.request(detail["content"],parseJson=False,JsonBody=False)
+        return hashlib.md5(ret.content).digest().hex()
+
+    def autoComplete(self, address,dbpath):
         collectList = self.getCollectorList()
         print(collectList)
         for item in collectList:
+            if item["isHandled"] == True:continue
             detail = self.getCollectorDetail(item["wid"])
             form = self.getCollectorFormFiled(detail["collector"]["formWid"], detail["collector"]["wid"])
 
-            formpath = "./formdb/{formwid}.json".format(formwid=detail["collector"]["formWid"])
+            formpath = "{dbpath}/{charac}.json".format(charac=self.getFormCharac(item),dbpath=dbpath)
             if os.path.exists(formpath):
                 with open(formpath,"rb") as file:
                     form = json.loads(file.read().decode("utf-8"))
@@ -233,12 +222,12 @@ class DailyCP:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 5:
-        print("python3 DailyCp.py 学校全名 学号 密码 定位地址")
+    if len(sys.argv) != 6:
+        print("python3 DailyCp.py 学校全名 学号 密码 定位地址 formdb文件夹绝对路径")
         exit()
     app = DailyCP(sys.argv[1])
     if not app.login(sys.argv[2], sys.argv[3]):exit()
-    app.autoComplete(sys.argv[4])
+    app.autoComplete(sys.argv[4],sys.argv[5])
 
 # Author:HuangXu,FengXinYang,ZhouYuYang.
 # By:AUST HACKER
@@ -247,6 +236,4 @@ if __name__ == "__main__":
 #2020/5/28 更改为使用自动获取学校URL的方式，更改为使用参数形式，添加另一种登录形式AuthServer的支持(已完成但未测试)。感谢柠火的反馈。
 #2020/6/1 修复BUG，发现AuthServer的登录方式每个学校都不一样。支持任意表单内容自定义（详情见输出信息和formdb/1129.json）。感谢涅灵的反馈。
 #2020/6/2 AuthServer的登录网址不再使用硬编码的方式，理论上能支持所有学校了吧？感谢涅灵的反馈。
-
-#如果有人帮我写使用教程就好了。
-#当然你发现这个表格具有普适性，可以发PULL REQUEST把formdb共享出来。
+#2020/6/17 修复crontab使用中相对路径的问题。识别form特征。
