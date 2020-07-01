@@ -200,7 +200,7 @@ class DailyCP:
         collectList = self.getCollectorList()
         print(collectList)
         for item in collectList:
-            if item["isHandled"] == True:continue
+            #if item["isHandled"] == True:continue
             detail = self.getCollectorDetail(item["wid"])
             form = self.getCollectorFormFiled(detail["collector"]["formWid"], detail["collector"]["wid"])
 
