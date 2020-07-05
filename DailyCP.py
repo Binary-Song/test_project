@@ -152,6 +152,7 @@ class DailyCP:
         salt = dict(re.findall(
             r'''<input type="hidden" id="(.*?)" value="(.*?)"''', ret.text))
         body["username"] = username
+        body["dllt"] = "userNamePasswordLogin"
         if "pwdDefaultEncryptSalt" in salt.keys():
             body["password"] = self.passwordEncrypt(
                 password, salt["pwdDefaultEncryptSalt"])
@@ -160,7 +161,7 @@ class DailyCP:
         ret = self.request(ret.url, body, False, False,
                            Referer=self.loginUrl).url
         print(self.session.cookies)
-        print("能用吗？不能用的话，有能力的自行改写脚本，没能力的付费咨询我QQ，支持功能定制，这么多学校实在忙不过来。")
+        print("本函数不一定能用。")
         return True
 
     def getCollectorList(self):
@@ -299,3 +300,4 @@ if __name__ == "__main__":
 # 2020/6/1 修复BUG，发现AuthServer的登录方式每个学校都不一样。支持任意表单内容自定义（详情见输出信息和formdb/1129.json）。感谢涅灵的反馈。
 # 2020/6/2 AuthServer的登录网址不再使用硬编码的方式，理论上能支持所有学校了吧？感谢涅灵的反馈。
 # 2020/6/17 修复crontab使用中相对路径的问题。识别form特征。
+# 2020/7/5 浪费别人的时间是一种可耻的行为。
