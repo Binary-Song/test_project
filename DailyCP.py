@@ -212,7 +212,8 @@ class DailyCP:
             "collectWid": collectWid,
             "schoolTaskWid": schoolTaskWid,
             "form": rows,
-            "address": address
+            "address": address,
+            "uaIsCpadaily":True
         }
         ret = self.request(
             "https://{host}/wec-counselor-collector-apps/stu/collector/submitForm", body)
