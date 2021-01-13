@@ -21,7 +21,7 @@ python3 DailyCP.py 学校全名 学号 密码 定位地址 formdb绝对路径
 #### 挂服务器提示
 请注意系统时间是否设置正确
 
-Linux下可以使用`corntab -e`设置定时任务让程序每天自动打卡
+Linux下可以使用`crontab -e`设置定时任务让程序每天自动打卡
 ```bash
 0 9 * * * python3 DailyCP.py 学校全名 学号 密码 定位地址
 ```
