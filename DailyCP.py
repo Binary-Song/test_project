@@ -202,9 +202,7 @@ class DailyCP:
             "pageSize": 50,
             "pageNumber": 1,
             "formWid": formWid,
-            "collectorWid": collectorWid,
-            'latitude': 0.0,
-            'longitude': 0.0
+            "collectorWid": collectorWid
         }
         return self.request("https://{host}/wec-counselor-collector-apps/stu/collector/getFormFields", body)["datas"]["rows"]
 
@@ -215,7 +213,9 @@ class DailyCP:
             "schoolTaskWid": schoolTaskWid,
             "form": rows,
             "address": address,
-            "uaIsCpadaily":True
+            "uaIsCpadaily":True,
+            'latitude': 0.0,
+            'longitude': 0.0
         }
         ret = self.request(
             "https://{host}/wec-counselor-collector-apps/stu/collector/submitForm", body)
