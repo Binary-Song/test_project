@@ -202,7 +202,9 @@ class DailyCP:
             "pageSize": 50,
             "pageNumber": 1,
             "formWid": formWid,
-            "collectorWid": collectorWid
+            "collectorWid": collectorWid,
+            'latitude': 0.0,
+            'longitude': 0.0
         }
         return self.request("https://{host}/wec-counselor-collector-apps/stu/collector/getFormFields", body)["datas"]["rows"]
 
