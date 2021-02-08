@@ -1,0 +1,440 @@
+[
+    {
+        "wid": "8801",
+        "formWid": "1479",
+        "fieldType": 2,
+        "title": "你今天的体温是多少度？",
+        "description": "",
+        "minLength": 0,
+        "sort": "1",
+        "maxLength": null,
+        "isRequired": 1,
+        "imageCount": null,
+        "hasOtherItems": 0,
+        "colName": "field001",
+        "value": "",
+        "minValue": 0.0,
+        "maxValue": 0.0,
+        "isDecimal": true,
+        "fieldItems": [
+            {
+                "itemWid": "27577",
+                "content": "37.2℃ 及以下",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": 1
+            },
+            {
+                "itemWid": "27578",
+                "content": "37.3~37.9℃",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": null
+            },
+            {
+                "itemWid": "27579",
+                "content": "38℃及以上",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": null
+            }
+        ]
+    },
+    {
+        "wid": "8802",
+        "formWid": "1479",
+        "fieldType": 2,
+        "title": "你目前是否在校？",
+        "description": "",
+        "minLength": 0,
+        "sort": "2",
+        "maxLength": null,
+        "isRequired": 1,
+        "imageCount": null,
+        "hasOtherItems": 0,
+        "colName": "field002",
+        "value": "",
+        "minValue": 0.0,
+        "maxValue": 0.0,
+        "isDecimal": true,
+        "fieldItems": [
+            {
+                "itemWid": "27580",
+                "content": "是",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": null
+            },
+            {
+                "itemWid": "27581",
+                "content": "否",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": 1
+            }
+        ]
+    },
+    {
+        "wid": "8803",
+        "formWid": "1479",
+        "fieldType": 1,
+        "title": "你目前所在城市",
+        "description": "国内请选择省/市/区（县）；海外请选择海外/州/国家",
+        "minLength": 1,
+        "sort": "3",
+        "maxLength": 300,
+        "isRequired": 1,
+        "imageCount": -2,
+        "hasOtherItems": 0,
+        "colName": "field003",
+        "value": "江苏省/南京市/秦淮区",
+        "minValue": 0.0,
+        "maxValue": 0.0,
+        "isDecimal": true,
+        "fieldItems": []
+    },
+    {
+        "wid": "8804",
+        "formWid": "1479",
+        "fieldType": 2,
+        "title": "你是否或曾经有疑似/确诊新冠肺炎？",
+        "description": "",
+        "minLength": 0,
+        "sort": "4",
+        "maxLength": null,
+        "isRequired": 1,
+        "imageCount": null,
+        "hasOtherItems": 0,
+        "colName": "field004",
+        "value": "",
+        "minValue": 0.0,
+        "maxValue": 0.0,
+        "isDecimal": true,
+        "fieldItems": [
+            {
+                "itemWid": "27582",
+                "content": "否",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": 1
+            },
+            {
+                "itemWid": "27583",
+                "content": "新冠肺炎疑似病例",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": null
+            },
+            {
+                "itemWid": "27584",
+                "content": "新冠肺炎确诊病例",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": null
+            },
+            {
+                "itemWid": "27585",
+                "content": "已解除",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": null
+            },
+            {
+                "itemWid": "27586",
+                "content": "已治愈",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": null
+            }
+        ]
+    },
+    {
+        "wid": "8805",
+        "formWid": "1479",
+        "fieldType": 2,
+        "title": "你是否有发热、咳嗽等症状?",
+        "description": "",
+        "minLength": 0,
+        "sort": "5",
+        "maxLength": null,
+        "isRequired": 1,
+        "imageCount": null,
+        "hasOtherItems": 0,
+        "colName": "field005",
+        "value": "",
+        "minValue": 0.0,
+        "maxValue": 0.0,
+        "isDecimal": true,
+        "fieldItems": [
+            {
+                "itemWid": "27587",
+                "content": "否",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": 1
+            },
+            {
+                "itemWid": "27588",
+                "content": "发热",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": null
+            },
+            {
+                "itemWid": "27589",
+                "content": "咳嗽",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": null
+            },
+            {
+                "itemWid": "27590",
+                "content": "其他症状",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": null
+            }
+        ]
+    },
+    {
+        "wid": "8806",
+        "formWid": "1479",
+        "fieldType": 2,
+        "title": "近期（15天内）你是否与新冠肺炎病人（含疑似病例人员）接触？",
+        "description": "以填写日期前15天情况进行填写",
+        "minLength": 0,
+        "sort": "6",
+        "maxLength": null,
+        "isRequired": 1,
+        "imageCount": null,
+        "hasOtherItems": 0,
+        "colName": "field006",
+        "value": "",
+        "minValue": 0.0,
+        "maxValue": 0.0,
+        "isDecimal": true,
+        "fieldItems": [
+            {
+                "itemWid": "27591",
+                "content": "是",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": null
+            },
+            {
+                "itemWid": "27592",
+                "content": "否",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": 1
+            }
+        ]
+    },
+    {
+        "wid": "8807",
+        "formWid": "1479",
+        "fieldType": 2,
+        "title": "你当前是否被医学隔离？",
+        "description": "这里指的隔离是指：由社区、街道或当地政府、医院认定要求的。",
+        "minLength": 0,
+        "sort": "7",
+        "maxLength": null,
+        "isRequired": 1,
+        "imageCount": null,
+        "hasOtherItems": 0,
+        "colName": "field007",
+        "value": "",
+        "minValue": 0.0,
+        "maxValue": 0.0,
+        "isDecimal": true,
+        "fieldItems": [
+            {
+                "itemWid": "27593",
+                "content": "是",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": null
+            },
+            {
+                "itemWid": "27594",
+                "content": "否",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": 1
+            }
+        ]
+    },
+    {
+        "wid": "8808",
+        "formWid": "1479",
+        "fieldType": 2,
+        "title": "你的家人是否或曾经是新型冠状病毒肺炎（含疑似）病人？",
+        "description": "",
+        "minLength": 0,
+        "sort": "8",
+        "maxLength": null,
+        "isRequired": 1,
+        "imageCount": null,
+        "hasOtherItems": 0,
+        "colName": "field008",
+        "value": "",
+        "minValue": 0.0,
+        "maxValue": 0.0,
+        "isDecimal": true,
+        "fieldItems": [
+            {
+                "itemWid": "27595",
+                "content": "否",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": 1
+            },
+            {
+                "itemWid": "27596",
+                "content": "新冠肺炎疑似病例",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": null
+            },
+            {
+                "itemWid": "27597",
+                "content": "新冠肺炎确诊病例",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": null
+            },
+            {
+                "itemWid": "27598",
+                "content": "已解除",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": null
+            },
+            {
+                "itemWid": "27599",
+                "content": "已治愈",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": null
+            }
+        ]
+    },
+    {
+        "wid": "8809",
+        "formWid": "1479",
+        "fieldType": 2,
+        "title": "近期（15天内）你的家人是否与新冠肺炎病人（含疑似病例人员）接触？",
+        "description": "以填写日期前15天情况进行填写",
+        "minLength": 0,
+        "sort": "9",
+        "maxLength": null,
+        "isRequired": 1,
+        "imageCount": null,
+        "hasOtherItems": 0,
+        "colName": "field009",
+        "value": "",
+        "minValue": 0.0,
+        "maxValue": 0.0,
+        "isDecimal": true,
+        "fieldItems": [
+            {
+                "itemWid": "27600",
+                "content": "是",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": null
+            },
+            {
+                "itemWid": "27601",
+                "content": "否",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": 1
+            }
+        ]
+    },
+    {
+        "wid": "8810",
+        "formWid": "1479",
+        "fieldType": 1,
+        "title": "你是否有学业、心理、经济困难等方面的事项，如果是请填写（选填）",
+        "description": "",
+        "minLength": 1,
+        "sort": "10",
+        "maxLength": 300,
+        "isRequired": 0,
+        "imageCount": null,
+        "hasOtherItems": 0,
+        "colName": "field010",
+        "value": "",
+        "minValue": 0.0,
+        "maxValue": 0.0,
+        "isDecimal": true,
+        "fieldItems": []
+    },
+    {
+        "wid": "8811",
+        "formWid": "1479",
+        "fieldType": 1,
+        "title": "你的紧急联系人姓名",
+        "description": "输入提示：请填写一位直系亲属作为紧急联系人",
+        "minLength": 1,
+        "sort": "11",
+        "maxLength": 300,
+        "isRequired": 1,
+        "imageCount": null,
+        "hasOtherItems": 0,
+        "colName": "field011",
+        "value": "张忆芹",
+        "minValue": 0.0,
+        "maxValue": 0.0,
+        "isDecimal": true,
+        "fieldItems": []
+    },
+    {
+        "wid": "8812",
+        "formWid": "1479",
+        "fieldType": 1,
+        "title": "你的紧急联系人电话",
+        "description": "",
+        "minLength": 11,
+        "sort": "12",
+        "maxLength": 11,
+        "isRequired": 1,
+        "imageCount": null,
+        "hasOtherItems": 0,
+        "colName": "field012",
+        "value": "15050552213",
+        "minValue": 0.0,
+        "maxValue": 0.0,
+        "isDecimal": true,
+        "fieldItems": []
+    },
+    {
+        "wid": "8813",
+        "formWid": "1479",
+        "fieldType": 2,
+        "title": "本人已被告知不允许提前返校，承诺以上所填报的全部内容均属实、准确，不存在任何隐瞒与不实的情况。",
+        "description": "",
+        "minLength": 0,
+        "sort": "13",
+        "maxLength": null,
+        "isRequired": 1,
+        "imageCount": null,
+        "hasOtherItems": 0,
+        "colName": "field013",
+        "value": "",
+        "minValue": 0.0,
+        "maxValue": 0.0,
+        "isDecimal": true,
+        "fieldItems": [
+            {
+                "itemWid": "27602",
+                "content": "是",
+                "isOtherItems": 0,
+                "contendExtend": null,
+                "isSelected": 1
+            }
+        ]
+    }
+]
