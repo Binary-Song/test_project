@@ -9,7 +9,7 @@
 运行以下命令即可
 ```bash
 pip install -r requirements.txt
-python3 DailyCP.py 武汉科技大学 201913137031 ACishere!1234 中国江苏省南京市栖霞区壮举路 D:\Projects\FuckDailyCP\formdb
+python3 DailyCP.py     
 ```
 #### 关于自定义任意表单内容
 因为表单的内容多种多样，也不可能共享给其他人使用，因此本脚本采用“一次编辑，永久使用”的思路。
