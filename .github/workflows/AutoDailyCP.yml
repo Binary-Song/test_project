@@ -7,13 +7,8 @@
 name: AutoDailyCP
 
 on:
-  push:
-    branches: 
-      - master
-  watch:
-    types: started
   schedule:
-    - cron: "* */6 * * *"
+  - cron: "* */6 * * *"
 
 jobs:
   build:
