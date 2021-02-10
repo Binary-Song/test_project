@@ -8,7 +8,7 @@ name: AutoDailyCP
 
 on:
   schedule:
-  - cron: "* */6 * * *"
+  - cron: "0 */12 * * *"
 
 jobs:
   build:
