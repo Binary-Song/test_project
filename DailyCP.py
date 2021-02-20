@@ -279,7 +279,7 @@ class DailyCP:
                         form, ensure_ascii=False).encode("utf-8"))
                     print("请手动填写{formpath}，之后重新运行脚本".format(formpath=formpath))
                     print("未知的表单")
-                    exit(2)
+                exit(1)
 
         confirmList = self.getNoticeList()
         print(confirmList)
