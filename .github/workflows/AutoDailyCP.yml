@@ -36,6 +36,7 @@ jobs:
           python3 DailyCP.py ${SCHOOL_NAME} ${ACCOUNT} ${PASSWORD} ${ADDRESS} formdb
       - name : Upload formdb
         uses: actions/upload-artifact@master
+        if: ${{ always() }}
         with:
           name: formdb
           path: formdb
