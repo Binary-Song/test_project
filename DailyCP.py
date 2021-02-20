@@ -278,7 +278,7 @@ class DailyCP:
                     file.write(json.dumps(
                         form, ensure_ascii=False).encode("utf-8"))
                     print("请手动填写{formpath}，之后重新运行脚本".format(formpath=formpath))
-                    exit(1)
+                    raise
 
         confirmList = self.getNoticeList()
         print(confirmList)
