@@ -14,7 +14,7 @@ from Crypto.Cipher import AES
 
 
 class DailyCP:
-    def __init__(self, schoolName="安徽理工大学"):
+    def __init__(self, schoolName ):
         self.key = "b3L26XNL"  # dynamic when app update
         self.session = requests.session()
         self.host = ""
@@ -238,14 +238,21 @@ class DailyCP:
     def autoComplete(self, address, dbpath):
         collectList = self.getCollectorList()
         print(collectList)
+        # 这里筛选要填写的表单
         for item in collectList:
             # if item["isHandled"] == True:continue
+            
             detail = self.getCollectorDetail(item["wid"])
             form = self.getCollectorFormFiled(
                 detail["collector"]["formWid"], detail["collector"]["wid"])
 
-            formpath = "{dbpath}/{charac}.json".format(
-                charac=self.getFormCharac(item), dbpath=dbpath)
+            try:
+                formpath = "{dbpath}/{charac}.json".format(
+                    charac=self.getFormCharac(item), dbpath=dbpath)
+            except:
+                print("无法获取formpath，跳过")
+                continue
+
             if os.path.exists(formpath):
                 with open(formpath, "rb") as file:
                     def find(l, key_valueList: list):
@@ -273,13 +280,15 @@ class DailyCP:
 
                 self.submitCollectorForm(detail["collector"]["formWid"], detail["collector"]
                                          ["wid"], detail["collector"]["schoolTaskWid"], form, address)
+                print(f"完成 {formpath}")
             else:
                 with open(formpath, "wb") as file:
                     file.write(json.dumps(
                         form, ensure_ascii=False).encode("utf-8"))
-                    print("请手动填写{formpath}，之后重新运行脚本".format(formpath=formpath))
                     print("未知的表单")
-                exit(1)
+                    print("请手动填写{formpath}，之后重新运行脚本".format(formpath=formpath))
+                    continue
+                
 
         confirmList = self.getNoticeList()
         print(confirmList)
